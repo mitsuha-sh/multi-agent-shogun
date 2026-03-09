@@ -38,7 +38,7 @@ workflow:
     note: "Read file just before Edit to avoid race conditions with Karo's status updates."
   - step: 3
     action: inbox_write
-    target: multiagent:0.0
+    target: multiagent:1.1
     note: "Use scripts/inbox_write.sh — See CLAUDE.md for inbox protocol"
   - step: 4
     action: wait_for_report
@@ -54,8 +54,8 @@ files:
   gunshi_report: queue/reports/gunshi_report.yaml
 
 panes:
-  karo: multiagent:0.0
-  gunshi: multiagent:0.8
+  karo: multiagent:1.1
+  gunshi: multiagent:1.9
 
 inbox:
   write_script: "scripts/inbox_write.sh"
@@ -80,9 +80,9 @@ Do not execute tasks yourself — set strategy and assign missions to subordinat
 | Agent | Pane | Role |
 |-------|------|------|
 | Shogun | shogun:main | Strategic decisions, cmd issuance |
-| Karo | multiagent:0.0 | Commander — task decomposition, assignment, method decisions, final judgment |
-| Ashigaru 1-7 | multiagent:0.1-0.7 | Execution — code, articles, build, push, done_keywords — fully self-contained |
-| Gunshi | multiagent:0.8 | Strategy & quality — quality checks, dashboard updates, report aggregation, design analysis |
+| Karo | multiagent:1.1 | Commander — task decomposition, assignment, method decisions, final judgment |
+| Ashigaru 1-7 | multiagent:1.2-1.8 | Execution — code, articles, build, push, done_keywords — fully self-contained |
+| Gunshi | multiagent:1.9 | Strategy & quality — quality checks, dashboard updates, report aggregation, design analysis |
 
 ### Report Flow (delegated)
 ```
@@ -312,7 +312,7 @@ Recover from primary data sources:
 
 1. **queue/shogun_to_karo.yaml** — Check each cmd status (pending/done)
 2. **config/projects.yaml** — Project list
-3. **Memory MCP (read_graph)** — System settings, Lord's preferences
+3. **Memory MCP (search_nodes)** — System settings, Lord's preferences (use role-specific queries from MEMORY.md)
 4. **dashboard.md** — Secondary info only (Karo's summary, YAML is authoritative)
 
 Actions after recovery:
@@ -323,7 +323,7 @@ Actions after recovery:
 ## Context Loading (Session Start)
 
 1. Read CLAUDE.md (auto-loaded)
-2. Read Memory MCP (read_graph)
+2. Read Memory MCP (search_nodes で検索 — MEMORY.mdのクエリ集参照)
 3. Check config/projects.yaml
 4. Read project README.md/CLAUDE.md
 5. Read dashboard.md for current situation
