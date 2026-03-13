@@ -63,6 +63,18 @@ if [ "$STOP_HOOK_ACTIVE" = "True" ]; then
         inotifywait -e close_write -e moved_to \
             --timeout 55 \
             "${WATCH_TARGETS_ACTIVE[@]}" 2>/dev/null || true
+    elif command -v fswatch &>/dev/null; then
+        # macOS: fswatch fallback (inotifywait unavailable)
+        fswatch -1 --event Updated --event Renamed \
+            "${WATCH_TARGETS_ACTIVE[@]}" &>/dev/null &
+        FSWATCH_PID=$!
+        waited=0
+        while kill -0 "$FSWATCH_PID" 2>/dev/null && [ "$waited" -lt 55 ]; do
+            sleep 1
+            waited=$((waited + 1))
+        done
+        kill "$FSWATCH_PID" 2>/dev/null || true
+        wait "$FSWATCH_PID" 2>/dev/null || true
     fi
     UNREAD_COUNT=$(grep -c 'read: false' "$INBOX" 2>/dev/null || true)
     if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
@@ -123,9 +135,18 @@ if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
         inotifywait -e close_write -e moved_to \
             --timeout 55 \
             "${WATCH_TARGETS[@]}" 2>/dev/null || true
-    else
-        # inotifywait not available: fall through to exit 0
-        :
+    elif command -v fswatch &>/dev/null; then
+        # macOS: fswatch fallback (inotifywait unavailable)
+        fswatch -1 --event Updated --event Renamed \
+            "${WATCH_TARGETS[@]}" &>/dev/null &
+        FSWATCH_PID=$!
+        waited=0
+        while kill -0 "$FSWATCH_PID" 2>/dev/null && [ "$waited" -lt 55 ]; do
+            sleep 1
+            waited=$((waited + 1))
+        done
+        kill "$FSWATCH_PID" 2>/dev/null || true
+        wait "$FSWATCH_PID" 2>/dev/null || true
     fi
     # 待機後に再チェック
     UNREAD_COUNT=$(grep -c 'read: false' "$INBOX" 2>/dev/null || true)
