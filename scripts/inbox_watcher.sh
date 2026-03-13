@@ -977,6 +977,10 @@ for s in data.get('specials', []):
             fi
             cmd=$(normalize_special_command "$msg_type" "$msg_content")
             if [ -n "$cmd" ]; then
+                # /clear前にSession Startフラグをリセット（enforce_session_start.sh連携）
+                if [ "$msg_type" = "clear_command" ]; then
+                    tmux set-option -p -t "$PANE_TARGET" @session_started 0 2>/dev/null || true
+                fi
                 send_cli_command "$cmd"
                 [ "$msg_type" = "clear_command" ] && clear_sent=1
             fi

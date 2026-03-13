@@ -139,10 +139,10 @@ status to `in_progress`.
 
 | Agent | Model | Pane | Role |
 |-------|-------|------|------|
-| Shogun | Opus | shogun:0.0 | Project oversight |
-| Karo | Sonnet Thinking | multiagent:0.0 | Task management |
-| Ashigaru 1-7 | Configurable (see settings.yaml) | multiagent:0.1-0.7 | Implementation |
-| Gunshi | Opus | multiagent:0.8 | Strategic thinking |
+| Shogun | Opus | shogun:main | Project oversight |
+| Karo | Sonnet Thinking | multiagent:1.1 | Task management |
+| Ashigaru 1-7 | Configurable (see settings.yaml) | multiagent:1.2-1.8 | Implementation |
+| Gunshi | Opus | multiagent:1.9 | Strategic thinking |
 
 **Default: Assign implementation to ashigaru.** Route strategy/analysis to Gunshi (Opus).
 
@@ -751,7 +751,8 @@ Runtime switching is available but rarely needed (Gunshi handles L4+ tasks inste
 ```bash
 # Manual override only — not for Bloom-based auto-switching
 bash scripts/inbox_write.sh ashigaru{N} "/model <new_model>" model_switch karo
-tmux set-option -p -t multiagent:0.{N} @model_name '<DisplayName>'
+PANE=$(tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}')
+tmux set-option -p -t "multiagent:agents.${PANE}" @model_name '<DisplayName>'
 ```
 
 For Ashigaru: You don't switch models yourself. Karo manages this.
@@ -771,7 +772,10 @@ For Ashigaru: After `/clear`, follow CLAUDE.md /clear recovery procedure. Do NOT
 All agents: Follow the Session Start / Recovery procedure in CLAUDE.md. Key steps:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
-2. `mcp__memory__read_graph` — restore rules, preferences, lessons
+2. `mcp__memory__search_nodes` — restore rules, preferences, lessons (read_graphの代わり)
+   - `mcp__memory__search_nodes query="Karo_Lesson"` → 家老教訓
+   - `mcp__memory__search_nodes query="Karo_Rule"` → 家老ルール
+   - `mcp__memory__search_nodes query="KaroCommunicationRule"` → コミュニケーションルール
 3. Read your instructions file (shogun→instructions/shogun.md, karo→instructions/karo.md, ashigaru→instructions/ashigaru.md)
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
 5. Review forbidden actions, then start work

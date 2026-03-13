@@ -158,17 +158,17 @@ files:
   dashboard: dashboard.md
 
 panes:
-  self: multiagent:0.0
+  self: multiagent:1.1
   ashigaru_default:
-    - { id: 1, pane: "multiagent:0.1" }
-    - { id: 2, pane: "multiagent:0.2" }
-    - { id: 3, pane: "multiagent:0.3" }
-    - { id: 4, pane: "multiagent:0.4" }
-    - { id: 5, pane: "multiagent:0.5" }
-    - { id: 6, pane: "multiagent:0.6" }
-    - { id: 7, pane: "multiagent:0.7" }
-  gunshi: { pane: "multiagent:0.8" }
-  agent_id_lookup: "tmux list-panes -t multiagent -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}'"
+    - { id: 1, pane: "multiagent:1.2" }
+    - { id: 2, pane: "multiagent:1.3" }
+    - { id: 3, pane: "multiagent:1.4" }
+    - { id: 4, pane: "multiagent:1.5" }
+    - { id: 5, pane: "multiagent:1.6" }
+    - { id: 6, pane: "multiagent:1.7" }
+    - { id: 7, pane: "multiagent:1.8" }
+  gunshi: { pane: "multiagent:1.9" }
+  agent_id_lookup: "tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}'"
 
 inbox:
   write_script: "scripts/inbox_write.sh"
@@ -642,7 +642,8 @@ STEP 2: Write next task YAML first (YAML-first principle)
 STEP 3: Reset pane title (after ashigaru is idle — ❯ visible)
   # pane titleはconfig/settings.yamlの該当agentのmodel値を使う
   model=$(grep -A2 "ashigaru{N}:" config/settings.yaml | grep 'model:' | awk '{print $2}')
-  tmux select-pane -t multiagent:0.{N} -T "$model"
+  PANE=$(tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}')
+  tmux select-pane -t "multiagent:agents.${PANE}" -T "$model"
   Title = MODEL NAME ONLY. No agent name, no task description.
   If model_override active → use that model name
 
@@ -753,7 +754,7 @@ tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'
 tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru3}'
 ```
 
-**When to use**: After 2 consecutive delivery failures. Normally use `multiagent:0.{N}`.
+**When to use**: After 2 consecutive delivery failures. Normally use agent_id lookup via `tmux list-panes -t multiagent:agents`.
 
 ## Task Routing: Ashigaru vs. Gunshi
 
@@ -780,7 +781,7 @@ STEP 2: Write task YAML to queue/tasks/gunshi.yaml
   - type: strategy | analysis | design | evaluation | decomposition
   - Include all context_files the Gunshi will need
 STEP 3: Set pane task label
-  tmux set-option -p -t multiagent:0.8 @current_task "戦略立案"
+  tmux set-option -p -t multiagent:1.9 @current_task "戦略立案"
 STEP 4: Send inbox
   bash scripts/inbox_write.sh gunshi "タスクYAMLを読んで分析開始せよ。" task_assigned karo
 STEP 5: Continue dispatching other ashigaru tasks in parallel
@@ -793,7 +794,7 @@ When Gunshi completes:
 1. Read `queue/reports/gunshi_report.yaml`
 2. Use Gunshi's analysis to create/refine ashigaru task YAMLs
 3. Update dashboard.md with Gunshi's findings (if significant)
-4. Reset pane label: `tmux set-option -p -t multiagent:0.8 @current_task ""`
+4. Reset pane label: `tmux set-option -p -t multiagent:1.9 @current_task ""`
 
 ### Gunshi Limitations
 
@@ -839,10 +840,10 @@ Ashigaru handle implementation only: article creation, code changes, file operat
 
 | Agent | Default Model | Pane | Role |
 |-------|---------------|------|------|
-| Shogun | Opus | shogun:0.0 | Project oversight |
-| Karo | Sonnet | multiagent:0.0 | Fast task management |
-| Ashigaru 1-7 | (settings.yaml参照) | multiagent:0.1-0.7 | Implementation |
-| Gunshi | Opus | multiagent:0.8 | Strategic thinking |
+| Shogun | Opus | shogun:main | Project oversight |
+| Karo | Sonnet | multiagent:1.1 | Fast task management |
+| Ashigaru 1-7 | (settings.yaml参照) | multiagent:1.2-1.8 | Implementation |
+| Gunshi | Opus | multiagent:1.9 | Strategic thinking |
 
 **Default: Assign implementation to ashigaru.** Route strategy/analysis to Gunshi (Opus).
 足軽のモデルは settings.yaml で個別定義。bloom_routing: "auto" 時は Step 6.5 で動的切替を実行せよ。
@@ -889,7 +890,10 @@ External PRs are reinforcements. Treat with respect.
 1. `queue/shogun_to_karo.yaml` — current cmd (check status: pending/done)
 2. `queue/tasks/ashigaru{N}.yaml` — all ashigaru assignments
 3. `queue/reports/ashigaru{N}_report.yaml` — unreflected reports?
-4. `Memory MCP (read_graph)` — system settings, lord's preferences
+4. `Memory MCP (search_nodes)` — system settings, lord's preferences
+   - `mcp__memory__search_nodes query="Karo_Lesson"` → 家老教訓
+   - `mcp__memory__search_nodes query="Karo_Rule"` → 家老ルール
+   - `mcp__memory__search_nodes query="KaroCommunicationRule"` → コミュニケーションルール
 5. `context/{project}.md` — project-specific knowledge (if exists)
 
 **dashboard.md is secondary** — may be stale after compaction. YAMLs are ground truth.
@@ -905,7 +909,10 @@ External PRs are reinforcements. Treat with respect.
 ## Context Loading Procedure
 
 1. CLAUDE.md (auto-loaded)
-2. Memory MCP (`read_graph`)
+2. Memory MCP (`search_nodes` で検索):
+   - `mcp__memory__search_nodes query="Karo_Lesson"`
+   - `mcp__memory__search_nodes query="Karo_Rule"`
+   - `mcp__memory__search_nodes query="KaroCommunicationRule"`
 3. `config/projects.yaml` — project list
 4. `queue/shogun_to_karo.yaml` — current instructions
 5. If task has `project` field → read `context/{project}.md`

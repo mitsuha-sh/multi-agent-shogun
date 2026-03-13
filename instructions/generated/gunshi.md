@@ -659,7 +659,8 @@ Runtime switching is available but rarely needed (Gunshi handles L4+ tasks inste
 ```bash
 # Manual override only — not for Bloom-based auto-switching
 bash scripts/inbox_write.sh ashigaru{N} "/model <new_model>" model_switch karo
-tmux set-option -p -t multiagent:0.{N} @model_name '<DisplayName>'
+PANE=$(tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}')
+tmux set-option -p -t "multiagent:agents.${PANE}" @model_name '<DisplayName>'
 ```
 
 For Ashigaru: You don't switch models yourself. Karo manages this.
@@ -679,7 +680,9 @@ For Ashigaru: After `/clear`, follow CLAUDE.md /clear recovery procedure. Do NOT
 All agents: Follow the Session Start / Recovery procedure in CLAUDE.md. Key steps:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
-2. `mcp__memory__read_graph` — restore rules, preferences, lessons
+2. `mcp__memory__search_nodes` — restore rules, preferences, lessons (read_graphの代わり)
+   - `mcp__memory__search_nodes query="Gunshi"` → 軍師教訓
+   - `mcp__memory__search_nodes query="GunshiQCLessons"` → QC教訓
 3. Read your instructions file (shogun→instructions/shogun.md, karo→instructions/karo.md, ashigaru→instructions/ashigaru.md)
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
 5. Review forbidden actions, then start work
