@@ -53,12 +53,12 @@ if [ "$STOP_HOOK_ACTIVE" = "True" ]; then
     # caused a deadlock: agent idle but watcher thinks busy → no nudge → stuck.
     FLAG="${IDLE_FLAG_DIR:-/tmp}/shogun_idle_${AGENT_ID}"
     touch "$FLAG"
+    if [ "$AGENT_ID" = "shogun" ]; then
+        exit 0
+    fi
     # stop_hook_active=True 時も inotifywait 待機（連続処理ループ対応）
     # タイムアウト(55秒)でexit 0 → ループは有限回で終了
     WATCH_TARGETS_ACTIVE=("$INBOX")
-    if [ "$AGENT_ID" = "shogun" ]; then
-        WATCH_TARGETS_ACTIVE+=("$SCRIPT_DIR/dashboard.md")
-    fi
     if command -v inotifywait &>/dev/null; then
         inotifywait -e close_write -e moved_to \
             --timeout 55 \
@@ -125,12 +125,12 @@ UNREAD_COUNT=$(grep -c 'read: false' "$INBOX" 2>/dev/null || true)
 FLAG="${IDLE_FLAG_DIR:-/tmp}/shogun_idle_${AGENT_ID}"
 if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
     touch "$FLAG"
+    if [ "$AGENT_ID" = "shogun" ]; then
+        exit 0
+    fi
     # inotifywait で inbox 変更を最大55秒待機
     # dashboard.md も監視（shogunの場合のみ）
     WATCH_TARGETS=("$INBOX")
-    if [ "$AGENT_ID" = "shogun" ]; then
-        WATCH_TARGETS+=("$SCRIPT_DIR/dashboard.md")
-    fi
     if command -v inotifywait &>/dev/null; then
         inotifywait -e close_write -e moved_to \
             --timeout 55 \
