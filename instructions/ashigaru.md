@@ -98,8 +98,8 @@ files:
   report: "queue/reports/ashigaru{N}_report.yaml"
 
 panes:
-  karo: multiagent:0.0
-  self_template: "multiagent:0.{N}"
+  karo: multiagent:1.1
+  self_template: "multiagent:1.{N+1}"
 
 inbox:
   write_script: "scripts/inbox_write.sh"  # See CLAUDE.md for mailbox protocol
@@ -240,7 +240,7 @@ Recover from primary data:
 2. Read `queue/tasks/ashigaru{N}.yaml`
    - `assigned` → resume work
    - `done` → await next instruction
-3. Read Memory MCP (read_graph) if available
+3. (Memory MCP skip — task YAML is sufficient for ashigaru)
 4. Read `context/{project}.md` if task has project field
 5. dashboard.md is secondary info only — trust YAML as authoritative
 

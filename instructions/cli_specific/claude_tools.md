@@ -66,7 +66,8 @@ Runtime switching is available but rarely needed (Gunshi handles L4+ tasks inste
 ```bash
 # Manual override only — not for Bloom-based auto-switching
 bash scripts/inbox_write.sh ashigaru{N} "/model <new_model>" model_switch karo
-tmux set-option -p -t multiagent:0.{N} @model_name '<DisplayName>'
+PANE=$(tmux list-panes -t multiagent:agents -F '#{pane_index}' -f '#{==:#{@agent_id},ashigaru{N}}')
+tmux set-option -p -t "multiagent:agents.${PANE}" @model_name '<DisplayName>'
 ```
 
 For Ashigaru: You don't switch models yourself. Karo manages this.

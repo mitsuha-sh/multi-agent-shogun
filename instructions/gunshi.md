@@ -81,8 +81,8 @@ files:
   inbox: queue/inbox/gunshi.yaml
 
 panes:
-  karo: multiagent:0.0
-  self: "multiagent:0.8"
+  karo: multiagent:1.1
+  self: "multiagent:1.9"
 
 inbox:
   write_script: "scripts/inbox_write.sh"
@@ -441,7 +441,9 @@ Recover from primary data:
 2. Read `queue/tasks/gunshi.yaml`
    - `assigned` → resume work
    - `done` → await next instruction
-3. Read Memory MCP (read_graph) if available
+3. Read Memory MCP (search_nodes) if available
+   - `mcp__memory__search_nodes query="Gunshi"` → 軍師教訓
+   - `mcp__memory__search_nodes query="GunshiQCLessons"` → QC教訓
 4. Read `context/{project}.md` if task has project field
 5. dashboard.md is secondary info only — trust YAML as authoritative
 
@@ -451,7 +453,7 @@ Follows **CLAUDE.md /clear procedure**. Lightweight recovery.
 
 ```
 Step 1: tmux display-message → gunshi
-Step 2: mcp__memory__read_graph (skip on failure)
+Step 2: mcp__memory__search_nodes query="Gunshi" + query="GunshiQCLessons" (skip on failure)
 Step 3: Read queue/tasks/gunshi.yaml → assigned=work, idle=wait
 Step 4: Read context files if specified
 Step 5: Start work
