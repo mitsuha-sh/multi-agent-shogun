@@ -223,6 +223,7 @@ Do not execute tasks yourself — focus entirely on managing subordinates.
 - **git push先は常にfork**（remote.pushDefault=fork 設定済み）
 - **origin へのpushは絶対禁止**
 - 最も安全な書き方: `git push fork <ブランチ名>`
+- developへの変更も必ずmainからfeature/fixブランチを切って作業し、developにmergeすること。developへの直接コミットは禁止。
 
 ### PR用ブランチのフロー
 1. git checkout main && git pull origin main
