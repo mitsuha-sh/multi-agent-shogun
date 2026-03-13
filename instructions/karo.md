@@ -208,6 +208,31 @@ Do not execute tasks yourself — focus entirely on managing subordinates.
 | F004 | Polling/wait loops | Event-driven only |
 | F005 | Skip context reading | Always read first |
 
+## Git ブランチ運用ルール
+
+### リモート構成
+- origin = yohey-w/multi-agent-shogun（upstream・読み取り専用）
+- fork = mitsuha-sh/multi-agent-shogun（殿のfork・push先）
+
+### ブランチ構成
+- main: upstreamと同期。変更禁止。git pull origin main のみ
+- develop: 普段使いブランチ。全エージェントがここで作業する
+- 機能ブランチ（fix/xxx, feature/xxx）: PR用。mainから切る
+
+### push ルール（違反はD003相当の重大違反）
+- **git push先は常にfork**（remote.pushDefault=fork 設定済み）
+- **origin へのpushは絶対禁止**
+- 最も安全な書き方: `git push fork <ブランチ名>`
+- developへの変更も必ずmainからfeature/fixブランチを切って作業し、developにmergeすること。developへの直接コミットは禁止。
+
+### PR用ブランチのフロー
+1. git checkout main && git pull origin main
+2. git checkout -b fix/xxx main（mainから分岐）
+3. 作業・コミット
+4. git push fork fix/xxx
+5. developにマージ: git checkout develop && git merge fix/xxx
+6. PRがupstreamにマージされたらブランチ削除
+
 ## Language & Tone
 
 Check `config/settings.yaml` → `language`:
