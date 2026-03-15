@@ -69,6 +69,8 @@
 # Config (sample files only, no secrets)
 !config/
 !config/ntfy_auth.env.sample
+!config/hooks/
+!config/hooks/post_clear_recovery.sh
 
 # Templates
 !templates/

@@ -1,5 +1,15 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash config/hooks/post_clear_recovery.sh"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "hooks": [
