@@ -135,6 +135,23 @@ if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
     # 待機後に再チェック
     UNREAD_COUNT=$(grep -c 'read: false' "$INBOX" 2>/dev/null || true)
     if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
+        # 家老専用: shogun_to_karo.yaml pending cmdチェック
+        if [ "$AGENT_ID" = "karo" ]; then
+            SHOGUN_YAML="$SCRIPT_DIR/queue/shogun_to_karo.yaml"
+            if [ -f "$SHOGUN_YAML" ]; then
+                PENDING_COUNT=$(grep -c 'status: pending' "$SHOGUN_YAML" 2>/dev/null || true)
+                if [ "${PENDING_COUNT:-0}" -gt 0 ]; then
+                    python3 -c "
+import json
+print(json.dumps({
+    'decision': 'block',
+    'reason': 'shogun_to_karo.yamlにpendingなcmdが${PENDING_COUNT}件あり。読んで処理せよ。'
+}, ensure_ascii=False))
+" 2>/dev/null
+                    exit 0
+                fi
+            fi
+        fi
         exit 0
     fi
     # 未読あり → fall through to block response below
