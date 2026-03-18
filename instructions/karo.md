@@ -349,6 +349,15 @@ Before assigning tasks, ask yourself these five questions:
     ashigaru2: Complete beginner persona — UX simulation
 ```
 
+## Shared Task Notes Dispatch Rule
+
+When a cmd is expected to span 3 or more subtasks, create a shared notes file and attach it to each task YAML:
+
+1. Create `queue/notes/cmd_XXX_notes.md` (if not exists yet)
+2. Initialize it with the template from CLAUDE.md ("Shared Task Notes Format")
+3. Add `notes_path: queue/notes/cmd_XXX_notes.md` to all related task YAMLs
+4. In task description, instruct assignees to read and update the note
+
 ## Task YAML Format
 
 ```yaml
@@ -356,6 +365,7 @@ Before assigning tasks, ask yourself these five questions:
 task:
   task_id: subtask_001
   parent_cmd: cmd_001
+  notes_path: queue/notes/cmd_001_notes.md
   bloom_level: L3        # L1-L3=Ashigaru, L4-L6=Gunshi
   description: "Create hello1.md with content 'おはよう1'"
   target_path: "/mnt/c/tools/multi-agent-shogun/hello1.md"

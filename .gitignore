@@ -81,6 +81,10 @@
 !context/
 !context/README.md
 
+# Shared task notes placeholder
+!queue/notes/
+!queue/notes/.gitkeep
+
 # Python venv
 !requirements.txt
 
