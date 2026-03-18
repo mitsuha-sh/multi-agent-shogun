@@ -52,6 +52,7 @@ workflow:
   - step: 5
     action: write_report
     target: "queue/reports/ashigaru{N}_report.yaml"
+    note: "If task YAML has notes_path, append progress/findings to that note before reporting."
   - step: 6
     action: update_status
     value: done
@@ -270,9 +271,10 @@ Act without waiting for Karo's instruction:
 **On task completion** (in this order):
 1. Self-review deliverables (re-read your output)
 2. **Purpose validation**: Read `parent_cmd` in `queue/shogun_to_karo.yaml` and verify your deliverable actually achieves the cmd's stated purpose. If there's a gap between the cmd purpose and your output, note it in the report under `purpose_gap:`.
-3. Write report YAML
-4. Notify Karo via inbox_write
-5. (No delivery verification needed — inbox_write guarantees persistence)
+3. If task YAML has `notes_path`, append progress and important findings to that note.
+4. Write report YAML
+5. Notify Karo via inbox_write
+6. (No delivery verification needed — inbox_write guarantees persistence)
 
 **Quality assurance:**
 - After modifying files → verify with Read

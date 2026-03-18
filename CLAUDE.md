@@ -68,6 +68,7 @@ language:
 3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Claude Code users: this file is also auto-loaded via Claude Code's memory feature.*
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
+   - If task YAML has `notes_path`, read that notes file as well
 5. Review forbidden actions, then start work
 
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→memory→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
@@ -83,6 +84,7 @@ Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} o
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
 Step 2: (gunshi only) mcp__memory__search_nodes query="Gunshi" + query="GunshiQCLessons" (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
+        If task has "notes_path:" → read that notes file
 Step 4: If task has "project:" field → read context/{project}.md
         If task has "target_path:" → read that file
 Step 5: Start work
@@ -91,6 +93,26 @@ Step 5: Start work
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別を必ず先に終わらせよ。
 
 Forbidden after /clear: reading instructions/*.md (1st task), polling (F004), contacting humans directly (F002). Trust task YAML only — pre-/clear memory is gone.
+
+## Shared Task Notes Format
+
+Use this format for `queue/notes/{cmd_id}_notes.md`:
+
+```markdown
+# cmd_XXX タスクノート
+
+## 進捗
+- [ ] subtask_XXXa: 内容
+
+## 重要な発見
+- ...
+
+## 次ステップ
+- ...
+
+## 家老メモ
+- ...
+```
 
 ## Summary Generation (compaction)
 

@@ -80,6 +80,10 @@
 !context/
 !context/README.md
 
+# Shared task notes placeholder
+!queue/notes/
+!queue/notes/.gitkeep
+
 # Python venv
 !requirements.txt
 
@@ -99,6 +103,8 @@
 !scripts/agent_status.sh
 !scripts/ratelimit_check.sh
 !scripts/switch_cli.sh
+!scripts/hooks/
+!scripts/hooks/suggest-compact.sh
 
 
 # SayTask (sample template only, not actual data)

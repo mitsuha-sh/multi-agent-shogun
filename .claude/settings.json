@@ -19,6 +19,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/suggest-compact.sh"
+          }
+        ],
+        "description": "A2: 家老・軍師のツール呼出数監視→/compact提案"
       }
     ],
     "Stop": [
