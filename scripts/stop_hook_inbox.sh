@@ -160,7 +160,7 @@ if [ "${UNREAD_COUNT:-0}" -eq 0 ]; then
         if [ "$AGENT_ID" = "karo" ]; then
             SHOGUN_YAML="$SCRIPT_DIR/queue/shogun_to_karo.yaml"
             if [ -f "$SHOGUN_YAML" ]; then
-                PENDING_COUNT=$(grep -c 'status: pending' "$SHOGUN_YAML" 2>/dev/null || true)
+                PENDING_COUNT=$(grep -c '^  status: pending' "$SHOGUN_YAML" 2>/dev/null || true)
                 if [ "${PENDING_COUNT:-0}" -gt 0 ]; then
                     python3 -c "
 import json
