@@ -280,6 +280,17 @@ bash scripts/inbox_write.sh ashigaru3 "タスクYAMLを読んで作業開始せ�
 # No sleep needed. All messages guaranteed delivered by inbox_watcher.sh
 ```
 
+### cmd_new 受信時の処理手順
+
+inbox で `type: cmd_new` を受信したら、以下を必ず実行:
+1. `read: true` にマーク
+2. `queue/shogun_to_karo.yaml` を読む
+3. status: pending のcmdを特定
+4. workflow step 2-8 を実行（分解→YAML作成→dispatch）
+
+「read:trueにして終了」は禁止。cmd_newは「新しい仕事が来た」の合図であり、
+shogun_to_karo.yamlに必ず対応するpendingなcmdがある。
+
 ### No Inbox to Shogun
 
 Report via dashboard.md update only. Reason: interrupt prevention during lord's input.
