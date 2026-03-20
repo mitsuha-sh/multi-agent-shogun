@@ -258,30 +258,19 @@ if [[ ${#CODEX_AGENTS[@]} -gt 0 ]]; then
         [[ -z "$ctx" ]] && ctx="?"
         CODEX_CONTEXT["$agent"]="$ctx"
 
-        # Quota: send /status to first agent, parse with -J (join wrapped lines)
+        # Quota: parse existing scrollback only (never send /status)
         if ! $_rl_quota_done; then
-            # Check if /status output already in scrollback
-            _has_status=$(tmux capture-pane -t "$pane" -p -J -S -60 2>/dev/null \
-                | grep -c '5h limit:' || true)
-
-            if [[ "$_has_status" -lt 2 ]]; then
-                # Send /status and wait for output
-                tmux send-keys -t "$pane" '/status' 2>/dev/null
-                sleep 0.3
-                tmux send-keys -t "$pane" Enter 2>/dev/null
-                sleep 2
-            fi
-
-            # Capture with -J to join wrapped lines across narrow pane
-            _status_out=$(tmux capture-pane -t "$pane" -p -J -S -60 2>/dev/null || echo "")
+            _status_out=$(tmux capture-pane -t "$pane" -p -J -S -120 2>/dev/null || echo "")
+            _5h_lines=$(echo "$_status_out" | grep '5h limit:' || true)
+            _wk_lines=$(echo "$_status_out" | grep 'Weekly limit:' || true)
+            _line=$(echo "$_5h_lines" | head -1)
 
             # Extract all "5h limit:" and "Weekly limit:" lines
             # First occurrence = account-level, second = model-level
-            _5h_lines=$(echo "$_status_out" | grep '5h limit:')
-            _wk_lines=$(echo "$_status_out" | grep 'Weekly limit:')
+            _5h_lines=$(echo "$_status_out" | grep '5h limit:' || true)
+            _wk_lines=$(echo "$_status_out" | grep 'Weekly limit:' || true)
 
             # Account 5h (first line)
-            _line=$(echo "$_5h_lines" | head -1)
             if [[ -n "$_line" ]]; then
                 CODEX_ACCT_5H_LEFT=$(echo "$_line" | grep -oE '[0-9]+% left' | grep -oE '[0-9]+')
                 CODEX_ACCT_5H_RESET=$(echo "$_line" | sed -n 's/.*resets \([^)]*\)).*/\1/p')
