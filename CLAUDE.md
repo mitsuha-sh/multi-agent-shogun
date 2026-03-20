@@ -209,6 +209,15 @@ Layer 3: YAML Queue      — persistent task data (queue/ — authoritative sour
 Layer 4: Session context — volatile (CLAUDE.md auto-loaded, instructions/*.md, lost on /clear)
 ```
 
+# Memory Write Rule (all agents)
+
+記憶を残す場合は `mcp__shogun-memory-mcp__memory_save` を使用すること。
+MEMORY.md には記憶内容を直接書かない（最小限のインデックス・リンクのみ）。
+Claude Code の自動メモリ機能による MEMORY.md 書き込みは許容するが、
+エージェントが能動的に記憶を残す場合は必ず memory_save を使うこと。
+
+適用対象: 将軍・家老・軍師・足軽 全エージェント。
+
 # Project Management
 
 System manages ALL white-collar work, not just self-improvement. Project folders can be external (outside this repo). `projects/` is git-ignored (contains secrets).
