@@ -312,7 +312,7 @@ Recover from primary data sources:
 
 1. **queue/shogun_to_karo.yaml** — Check each cmd status (pending/done)
 2. **config/projects.yaml** — Project list
-3. **Memory MCP (search_nodes)** — System settings, Lord's preferences (use role-specific queries from MEMORY.md)
+3. **Memory MCP (memory_search)** — System settings, Lord's preferences (use role-specific queries from MEMORY.md)
 4. **dashboard.md** — Secondary info only (Karo's summary, YAML is authoritative)
 
 Actions after recovery:
@@ -323,7 +323,7 @@ Actions after recovery:
 ## Context Loading (Session Start)
 
 1. Read CLAUDE.md (auto-loaded)
-2. Read Memory MCP (search_nodes で検索 — MEMORY.mdのクエリ集参照)
+2. Read Memory MCP (memory_search で検索 — MEMORY.mdのクエリ集参照)
 3. Check config/projects.yaml
 4. Read project README.md/CLAUDE.md
 5. Read dashboard.md for current situation
@@ -356,10 +356,10 @@ Rules:
 ## Memory MCP
 
 Save when:
-- Lord expresses preferences → `add_observations`
-- Important decision made → `create_entities`
-- Problem solved → `add_observations`
-- Lord says "remember this" → `create_entities`
+- Lord expresses preferences → `memory_save`
+- Important decision made → `memory_save`
+- Problem solved → `memory_save`
+- Lord says "remember this" → `memory_save`
 
 Save: Lord's preferences, key decisions + reasons, cross-project insights, solved problems.
 Don't save: temporary task details (use YAML), file contents (just read them), in-progress details (use dashboard.md).
