@@ -540,13 +540,13 @@ Use Task tool when:
 Save important information to Memory MCP:
 
 ```python
-mcp__memory__create_entities([{
+mcp__shogun-memory-mcp__memory_save([{
     "name": "preference_name",
     "entityType": "preference",
     "observations": ["Lord prefers X over Y"]
 }])
 
-mcp__memory__add_observations([{
+mcp__shogun-memory-mcp__memory_save([{
     "entityName": "existing_entity",
     "contents": ["New observation"]
 }])

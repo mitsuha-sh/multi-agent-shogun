@@ -603,13 +603,13 @@ Use Task tool when:
 Save important information to Memory MCP:
 
 ```python
-mcp__memory__create_entities([{
+mcp__shogun-memory-mcp__memory_save([{
     "name": "preference_name",
     "entityType": "preference",
     "observations": ["Lord prefers X over Y"]
 }])
 
-mcp__memory__add_observations([{
+mcp__shogun-memory-mcp__memory_save([{
     "entityName": "existing_entity",
     "contents": ["New observation"]
 }])
@@ -648,7 +648,7 @@ For Ashigaru: After `/clear`, follow CLAUDE.md /clear recovery procedure. Do NOT
 All agents: Follow the Session Start / Recovery procedure in CLAUDE.md. Key steps:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
-2. `mcp__memory__read_graph` — restore rules, preferences, lessons
+2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons
 3. Read your instructions file (shogun→instructions/shogun.md, karo→instructions/karo.md, ashigaru→instructions/ashigaru.md)
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
 5. Review forbidden actions, then start work
