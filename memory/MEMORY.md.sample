@@ -5,20 +5,20 @@ This file persists across sessions and is read by the Shogun agent at startup.
 
 ---
 
-## How to Use: MEMORY.md vs Memory MCP
+## How to Use: MEMORY.md vs shogun-memory-mcp
 
 Two memory systems exist. Use them for different purposes:
 
-| | MEMORY.md | Memory MCP (graph) |
+| | MEMORY.md | shogun-memory-mcp (SQLite+FTS5) |
 |---|---|---|
-| **Loaded** | Auto at session start | Only when you call `read_graph` |
+| **Loaded** | Auto at session start | Only when you call `memory_search` |
 | **Cost** | Free (already in context) | Tokens per call |
-| **Format** | Plain text | Entities + Relations |
-| **Best for** | Rules, settings, current state | Lessons, decisions, relationships |
+| **Format** | Plain text | memories + tags |
+| **Best for** | Rules, settings, current state | Lessons, decisions, searchable knowledge |
 
 **Rule of thumb:**
 - "I need this every session" → **MEMORY.md**
-- "I need to query: what caused X / what's related to Y" → **Memory MCP**
+- "I need to query: what caused X / what's related to Y" → **shogun-memory-mcp**
 
 ### What to put in MEMORY.md
 - Your profile (GitHub, X, etc.)
@@ -27,23 +27,24 @@ Two memory systems exist. Use them for different purposes:
 - Active project references and URLs
 - TODO backlog
 
-### What to put in Memory MCP
-- Incidents and their root causes (entity → caused_by → entity)
-- Architecture decisions with reasoning (decision → chosen_over → alternative)
-- Lord's preferences by category (pref → applies_to → context)
+### What to put in shogun-memory-mcp
+- Incidents and their root causes
+- Architecture decisions with reasoning
+- Lord's preferences by category
 - Cross-project lessons learned
 
-### Example Memory MCP entry
+### Example shogun-memory-mcp entry
 ```
-mcp__memory__create_entities([{
-  name: "incident_pr31",
-  entityType: "incident",
-  observations: ["Gunshi review skipped → venv preflight missing → deploy broke"]
-}])
-mcp__memory__create_relations([{
-  from: "incident_pr31", to: "rule_always_gunshi_infra_pr", relationType: "caused"
-}])
+mcp__shogun-memory-mcp__memory_save(
+    content="Gunshi review skipped -> venv preflight missing -> deploy broke",
+    memory_type="procedural",
+    category="lesson",
+    importance=7,
+    tags=["entity:Shogun_Lesson_XXX", "shogun_lesson"]
+)
 ```
+
+> **Note:** Phase 3 will add vector search (sqlite-vec + ruri-v3-130m) for hybrid FTS5 + semantic retrieval.
 
 ---
 
