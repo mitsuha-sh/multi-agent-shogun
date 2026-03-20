@@ -65,7 +65,7 @@ language:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
    確認後: `tmux set-option -p @session_started 1` を実行せよ（hookブロック解除）
-2. `mcp__memory__search_nodes` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
+2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
 3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Codex CLI users: this file is also auto-loaded via Codex CLI's memory feature.*
 4. **Read your instructions file**: shogun→`instructions/generated/codex-shogun.md`, karo→`instructions/generated/codex-karo.md`, ashigaru→`instructions/generated/codex-ashigaru.md`, gunshi→`instructions/generated/codex-gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
@@ -82,7 +82,7 @@ Lightweight recovery using only AGENTS.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__memory__search_nodes query="Gunshi" + query="GunshiQCLessons" (skip on failure). Ashigaru skip — task YAML is sufficient.
+Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_search query="Gunshi" + query="GunshiQCLessons" (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
 Step 4: If task has "project:" field → read context/{project}.md
         If task has "target_path:" → read that file
