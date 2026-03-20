@@ -64,7 +64,9 @@ language:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
    確認後: `tmux set-option -p @session_started 1` を実行せよ（hookブロック解除）
-2. `mcp__memory__search_nodes` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
+2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
+   - Recommended queries: `Shogun_Lesson`, `Shogun_Rule`, `Karo_Lesson`, `Karo_Rule`, `Gunshi`, `policy`
+   - Note: entity-name-only query (example: `GunshiQCLessons`) requires tag-aware search support
 3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Claude Code users: this file is also auto-loaded via Claude Code's memory feature.*
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
@@ -82,7 +84,7 @@ Lightweight recovery using only CLAUDE.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__memory__search_nodes query="Gunshi" + query="GunshiQCLessons" (skip on failure). Ashigaru skip — task YAML is sufficient.
+Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_search query="Gunshi" + query="policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
         If task has "notes_path:" → read that notes file
 Step 4: If task has "project:" field → read context/{project}.md
