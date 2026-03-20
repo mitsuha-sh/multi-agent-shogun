@@ -28,10 +28,25 @@ INPUT=$(cat)
 # ─── Identify agent ───
 if [ -n "${__STOP_HOOK_AGENT_ID+x}" ]; then
     AGENT_ID="$__STOP_HOOK_AGENT_ID"
-elif [ -n "${TMUX_PANE:-}" ]; then
-    AGENT_ID=$(tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' 2>/dev/null || true)
 else
-    AGENT_ID=""
+    # Check if parent process is the registered shogun process.
+    # Handles the case where TMUX_PANE is stale/inherited from another pane.
+    MY_PARENT_PID=$(ps -o ppid= -p $$ 2>/dev/null | tr -d ' ')
+    SHOGUN_PID_FILE="/tmp/shogun_claude_pid"
+    if [ -f "$SHOGUN_PID_FILE" ] && [ "$(cat "$SHOGUN_PID_FILE" 2>/dev/null | tr -d ' ')" = "$MY_PARENT_PID" ]; then
+        AGENT_ID="shogun"
+    else
+        # Fallback: find pane by parent PID, then TMUX_PANE
+        ACTUAL_PANE=$(tmux list-panes -a -F '#{pane_id} #{pane_pid}' 2>/dev/null \
+            | awk -v ppid="$MY_PARENT_PID" '$2==ppid{print $1}')
+        if [ -n "$ACTUAL_PANE" ]; then
+            AGENT_ID=$(tmux display-message -t "$ACTUAL_PANE" -p '#{@agent_id}' 2>/dev/null || true)
+        elif [ -n "${TMUX_PANE:-}" ]; then
+            AGENT_ID=$(tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' 2>/dev/null || true)
+        else
+            AGENT_ID=""
+        fi
+    fi
 fi
 
 # If we can't identify the agent, approve (exit 0 with no output = approve)
