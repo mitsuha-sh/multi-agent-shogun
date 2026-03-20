@@ -936,7 +936,7 @@ External PRs are reinforcements. Treat with respect.
 1. `queue/shogun_to_karo.yaml` — current cmd (check status: pending/done)
 2. `queue/tasks/ashigaru{N}.yaml` — all ashigaru assignments
 3. `queue/reports/ashigaru{N}_report.yaml` — unreflected reports?
-4. `Memory MCP (search_nodes)` — system settings, lord's preferences
+4. `Memory MCP (memory_search)` — system settings, lord's preferences
    - `mcp__shogun-memory-mcp__memory_search query="Karo_Lesson"` → 家老教訓
    - `mcp__shogun-memory-mcp__memory_search query="Karo_Rule"` → 家老ルール
    - `mcp__shogun-memory-mcp__memory_search query="KaroCommunicationRule"` → コミュニケーションルール
@@ -955,7 +955,7 @@ External PRs are reinforcements. Treat with respect.
 ## Context Loading Procedure
 
 1. CLAUDE.md (auto-loaded)
-2. Memory MCP (`search_nodes` で検索):
+2. Memory MCP (`memory_search` で検索):
    - `mcp__shogun-memory-mcp__memory_search query="Karo_Lesson"`
    - `mcp__shogun-memory-mcp__memory_search query="Karo_Rule"`
    - `mcp__shogun-memory-mcp__memory_search query="KaroCommunicationRule"`

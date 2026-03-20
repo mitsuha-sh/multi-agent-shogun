@@ -441,7 +441,7 @@ Recover from primary data:
 2. Read `queue/tasks/gunshi.yaml`
    - `assigned` → resume work
    - `done` → await next instruction
-3. Read Memory MCP (search_nodes) if available
+3. Read Memory MCP (memory_search) if available
    - `mcp__shogun-memory-mcp__memory_search query="Gunshi"` → 軍師教訓
    - `mcp__shogun-memory-mcp__memory_search query="GunshiQCLessons"` → QC教訓
 4. Read `context/{project}.md` if task has project field
