@@ -65,10 +65,19 @@ language:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
    確認後: `tmux set-option -p @session_started 1` を実行せよ（hookブロック解除）
-2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
-   - Recommended queries: `Shogun_Lesson`, `Shogun_Rule`, `Karo_Lesson`, `Karo_Rule`, `Gunshi`, `policy`
-   - Note: entity-name-only query (example: `GunshiQCLessons`) requires tag-aware search support
-3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Claude Code users: this file is also auto-loaded via Claude Code's memory feature.*
+2. `mcp__shogun-memory-mcp__memory_load` — restore rules, preferences, lessons
+   **(shogun/karo/gunshi only. ashigaru skip this step)**
+
+   | Agent | Commands |
+   |-------|----------|
+   | Shogun | memory_load tags="shogun_lesson" min_importance=8 |
+   |        | memory_load tags="policy" min_importance=8 |
+   |        | memory_load tags="soul_user" |
+   | Karo   | memory_load tags="karo_lesson,karo_rule" min_importance=8 |
+   | Gunshi | memory_load tags="gunshi_qc" min_importance=7 |
+   |        | memory_load tags="policy" min_importance=9 |
+3. **(shogun only)** Read `~/.claude/.../memory/SOUL.md` (client-side personality definition)
+   Note: `MEMORY.md` is NOT primary. MCP is authoritative.
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
 4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
 5. Review forbidden actions, then start work
@@ -84,7 +93,7 @@ Lightweight recovery using only CLAUDE.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_search query="Gunshi" + query="policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
+Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_load tags="gunshi_qc,policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
 Step 4: If task has "project:" field → read context/{project}.md
         If task has "target_path:" → read that file
