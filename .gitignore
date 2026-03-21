@@ -109,6 +109,7 @@ config/projects.yaml
 !scripts/agent_status.sh
 !scripts/ratelimit_check.sh
 !scripts/switch_cli.sh
+!scripts/pre-commit.sh
 !scripts/hooks/
 !scripts/hooks/suggest-compact.sh
 
