@@ -69,12 +69,12 @@ language:
 
    | Agent | Commands |
    |-------|----------|
-   | Shogun | memory_load tags="shogun_lesson" min_importance=8 |
-   |        | memory_load tags="policy" min_importance=8 |
-   |        | memory_load tags="soul_user" |
-   | Karo   | memory_load tags="karo_lesson,karo_rule" min_importance=8 |
-   | Gunshi | memory_load tags="gunshi_qc" min_importance=7 |
-   |        | memory_load tags="policy" min_importance=9 |
+   | Shogun | memory_load tags="work:lesson_shogun" min_importance=8 |
+   |        | memory_load tags="core:policy" min_importance=8 |
+   |        | memory_load tags="core:user" |
+   | Karo   | memory_load tags="work:lesson_karo" min_importance=8 |
+   | Gunshi | memory_load tags="work:lesson_gunshi" min_importance=7 |
+   |        | memory_load tags="core:policy" min_importance=9 |
 3. **(shogun only)** Read `~/.claude/.../memory/SOUL.md` (client-side personality definition)
    Note: `MEMORY.md` is NOT primary. MCP is authoritative.
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
@@ -93,7 +93,7 @@ Lightweight recovery using only CLAUDE.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_load tags="gunshi_qc,policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
+Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_load tags="work:lesson_gunshi,core:policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
         If task has "notes_path:" → read that notes file
 Step 4: If task has "project:" field → read context/{project}.md
