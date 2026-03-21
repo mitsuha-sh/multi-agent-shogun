@@ -64,6 +64,10 @@
 !setup.sh
 !install.bat
 
+# Migration scripts
+!migration/
+!migration/migrate_memory.py
+
 # Development tooling
 !Makefile
 
