@@ -67,6 +67,7 @@
       "Bash(chown -R * /)"
     ]
   },
+  "autoMemoryEnabled": false,
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
