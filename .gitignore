@@ -64,9 +64,7 @@
 !setup.sh
 !install.bat
 
-# Migration scripts
-!migration/
-!migration/migrate_memory.py
+# Migration scripts (private — not tracked)
 
 # Development tooling
 !Makefile
@@ -76,6 +74,9 @@
 !config/ntfy_auth.env.sample
 !config/hooks/
 !config/hooks/post_clear_recovery.sh
+# Private config (explicit deny — prevent git add)
+config/settings.yaml
+config/projects.yaml
 
 # Templates
 !templates/
@@ -117,6 +118,7 @@
 !saytask/streaks.yaml.sample
 
 # Reports (private — not tracked)
+reports/
 
 # Memory (MEMORY.md is private; only the sample template is OSS)
 !memory/
