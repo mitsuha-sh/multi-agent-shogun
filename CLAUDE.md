@@ -241,12 +241,12 @@ Layer 4: Session context — volatile (CLAUDE.md auto-loaded, instructions/*.md,
 
 # Memory Write Rule (all agents)
 
-記憶を残す場合は `mcp__shogun-memory-mcp__memory_save` を使用すること。
-MEMORY.md には記憶内容を直接書かない（最小限のインデックス・リンクのみ）。
-Claude Code の自動メモリ機能による MEMORY.md 書き込みは許容するが、
-エージェントが能動的に記憶を残す場合は必ず memory_save を使うこと。
+To persist memory, use `mcp__shogun-memory-mcp__memory_save`.
+Do not write memory content directly to MEMORY.md (index/links only).
+Claude Code auto-memory is disabled (autoMemoryEnabled: false);
+all agents must use memory_save for intentional memory persistence.
 
-適用対象: 将軍・家老・軍師・足軽 全エージェント。
+Applies to: Shogun, Karo, Gunshi, and all Ashigaru.
 
 # Project Management
 
