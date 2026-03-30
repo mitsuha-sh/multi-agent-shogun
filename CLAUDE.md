@@ -64,23 +64,20 @@ language:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
    確認後: `tmux set-option -p @session_started 1` を実行せよ（hookブロック解除）
-2. `mcp__shogun-memory-mcp__memory_load` — restore rules, preferences, lessons
-   **(shogun/karo/gunshi only. ashigaru skip this step)**
+2. `mcp__shogun-memory-mcp__memory_load` + `conversation_load_recent` — restore structured memory + recent conversational context
+   **(shogun only. karo/gunshi/ashigaru skip this step)**
 
    | Agent | Commands |
    |-------|----------|
-   | Shogun | memory_load tags="work:lesson_shogun" min_importance=8 |
-   |        | memory_load tags="core:policy" min_importance=8 |
-   |        | memory_load tags="core:user" |
-   | Karo   | memory_load tags="work:lesson_karo" min_importance=8 |
-   | Gunshi | memory_load tags="work:lesson_gunshi" min_importance=7 |
-   |        | memory_load tags="core:policy" min_importance=9 |
+   | Shogun | memory_load tags="code" |
+   |        | conversation_load_recent agent_id="shogun" project="<active_project>" limit_chunks=6 since_days=3 |
 3. **(shogun only)** Read `~/.claude/.../memory/SOUL.md` (client-side personality definition)
    Note: `MEMORY.md` is NOT primary. MCP is authoritative.
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
-4. Rebuild state from primary YAML data (queue/, tasks/, reports/)
+5. **Read `queue/handoff/{agent_id}.md` if it exists** — volatile handoff from the previous session. Use it for in-progress context only; persistent facts still belong in Memory MCP.
+6. Rebuild state from primary YAML data (queue/, tasks/, reports/)
    - If task YAML has `notes_path`, read that notes file as well
-5. Review forbidden actions, then start work
+7. Review forbidden actions, then start work
 
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→memory→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
 
@@ -93,7 +90,7 @@ Lightweight recovery using only CLAUDE.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_load tags="work:lesson_gunshi,core:policy" (skip on failure). Ashigaru skip — task YAML is sufficient.
+Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_load tags="code" + conversation_load_recent(agent_id="gunshi", project="<active_project>", limit_chunks=6, since_days=3) (skip on failure). Ashigaru skip — task YAML is sufficient.
 Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
         If task has "notes_path:" → read that notes file
 Step 4: If task has "project:" field → read context/{project}.md

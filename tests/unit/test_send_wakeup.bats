@@ -36,6 +36,8 @@
 #   T-CODEX-010: unresolved CLI type falls back to codex-safe path
 #   T-CODEX-011: clear_command処理でauto-recovery task_assignedを自動投入
 #   T-CODEX-012: auto-recovery task_assignedは重複投入しない
+#   T-KARO-001: karo timeout時にpending cmdを検知してauto-pending通知を注入
+#   T-KARO-002: auto-pending通知は未読がある間は重複注入しない
 #   T-SHOGUN-001: session_has_client — returns 0 when client attached
 #   T-SHOGUN-002: session_has_client — returns 1 when no client
 #   T-SHOGUN-003: send_wakeup — shogun + active + attached → send-keys (post PR#75)
@@ -775,6 +777,89 @@ YAML
         r=$(enqueue_recovery_task_assigned)
         # Should return a message ID (not SKIP_*)
         if [[ "$r" != SKIP_* ]] && [[ "$r" != "ERROR" ]] && [[ -n "$r" ]]; then echo "OK"; else echo "FAIL:$r"; fi
+    '
+    [ "$status" -eq 0 ]
+    echo "$output" | grep -q "OK"
+}
+
+# --- T-KARO-001: pending cmd auto-reminder injection ---
+
+@test "T-KARO-001: process_unread timeout injects auto-pending cmd_new for karo when pending exists" {
+    run bash -c '
+        source "'"$TEST_HARNESS"'"
+        AGENT_ID="karo"
+        INBOX="$TEST_INBOX_DIR/karo.yaml"
+        LOCKFILE="${INBOX}.lock"
+        echo "messages: []" > "$INBOX"
+
+        queue_tmp="$TEST_TMPDIR/shogun_to_karo.yaml"
+        cat > "$queue_tmp" << "YAML"
+- id: cmd_test_1
+  status: pending
+YAML
+        SHOGUN_CMD_QUEUE="$queue_tmp"
+        process_unread timeout
+
+        "$VENV_PYTHON" - << "PY" "$INBOX"
+import sys
+import yaml
+
+inbox_path = sys.argv[1]
+with open(inbox_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+messages = data.get("messages", []) or []
+auto = [
+    m for m in messages
+    if m.get("from") == "inbox_watcher"
+    and m.get("type") == "cmd_new"
+    and m.get("read") is False
+    and "[auto-pending-guard]" in (m.get("content") or "")
+]
+assert len(auto) == 1
+print("OK")
+PY
+    '
+    [ "$status" -eq 0 ]
+    echo "$output" | grep -q "OK"
+}
+
+# --- T-KARO-002: pending cmd auto-reminder dedupe ---
+
+@test "T-KARO-002: process_unread timeout does not duplicate unread auto-pending reminder" {
+    run bash -c '
+        source "'"$TEST_HARNESS"'"
+        AGENT_ID="karo"
+        INBOX="$TEST_INBOX_DIR/karo.yaml"
+        LOCKFILE="${INBOX}.lock"
+        echo "messages: []" > "$INBOX"
+
+        queue_tmp="$TEST_TMPDIR/shogun_to_karo.yaml"
+        cat > "$queue_tmp" << "YAML"
+- id: cmd_test_2
+  status: pending
+YAML
+        SHOGUN_CMD_QUEUE="$queue_tmp"
+        process_unread timeout
+        process_unread timeout
+
+        "$VENV_PYTHON" - << "PY" "$INBOX"
+import sys
+import yaml
+
+inbox_path = sys.argv[1]
+with open(inbox_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+messages = data.get("messages", []) or []
+auto = [
+    m for m in messages
+    if m.get("from") == "inbox_watcher"
+    and m.get("type") == "cmd_new"
+    and m.get("read") is False
+    and "[auto-pending-guard]" in (m.get("content") or "")
+]
+assert len(auto) == 1
+print("OK")
+PY
     '
     [ "$status" -eq 0 ]
     echo "$output" | grep -q "OK"
