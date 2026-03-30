@@ -72,8 +72,10 @@
 # Config (sample files only, no secrets)
 !config/
 !config/ntfy_auth.env.sample
+!config/local.env.sample
 !config/hooks/
 !config/hooks/post_clear_recovery.sh
+!config/hooks/enforce_session_start.sh
 !config/hooks/write_handoff.sh
 # Private config (explicit deny — prevent git add)
 config/settings.yaml
@@ -115,6 +117,7 @@ config/projects.yaml
 !scripts/pre-commit.sh
 !scripts/hooks/
 !scripts/hooks/suggest-compact.sh
+!scripts/hooks/stop_hook_conversation_save.sh
 
 
 # SayTask (sample template only, not actual data)
