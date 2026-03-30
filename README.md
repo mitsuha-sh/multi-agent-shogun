@@ -817,7 +817,7 @@ All projects use the same 7-section template:
 This unified format enables:
 - Quick onboarding for any agent
 - Consistent information management across all projects
-- Easy handoff between Ashigaru workers
+- Smooth collaboration between Ashigaru workers
 
 ### 📱 8. Phone Notifications (ntfy)
 

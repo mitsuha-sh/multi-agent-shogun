@@ -68,9 +68,8 @@ language:
 2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
 3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Codex CLI users: this file is also auto-loaded via Codex CLI's memory feature.*
 4. **Read your instructions file**: shogun→`instructions/generated/codex-shogun.md`, karo→`instructions/generated/codex-karo.md`, ashigaru→`instructions/generated/codex-ashigaru.md`, gunshi→`instructions/generated/codex-gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
-5. **Read `queue/handoff/{agent_id}.md` if it exists** — volatile handoff from the previous session. Use it only for in-progress context; persistent facts still belong in Memory MCP.
-6. Rebuild state from primary YAML data (queue/, tasks/, reports/)
-7. Review forbidden actions, then start work
+5. Rebuild state from primary YAML data (queue/, tasks/, reports/)
+6. Review forbidden actions, then start work
 
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→memory→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
 

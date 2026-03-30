@@ -693,7 +693,7 @@ send_codex_startup_prompt() {
         startup_prompt=$(get_startup_prompt "$AGENT_ID" 2>/dev/null || true)
     fi
     if [[ -z "$startup_prompt" ]]; then
-        startup_prompt="Session Start — do ALL of this in one turn, do NOT stop early: 1) tmux display-message to identify yourself. 2) Read queue/tasks/${AGENT_ID}.yaml. 3) Read queue/inbox/${AGENT_ID}.yaml, mark read:true. 4) If queue/handoff/${AGENT_ID}.md exists, read it first. 5) Read context_files. 6) Execute the assigned task to completion — edit files, run commands, write reports. Keep working until done."
+        startup_prompt="Session Start — do ALL of this in one turn, do NOT stop early: 1) tmux display-message to identify yourself. 2) Read queue/tasks/${AGENT_ID}.yaml. 3) Read queue/inbox/${AGENT_ID}.yaml, mark read:true. 4) Read context_files. 5) Execute the assigned task to completion — edit files, run commands, write reports. Keep working until done."
     fi
     echo "[$(date)] [STARTUP] Sending startup prompt to $AGENT_ID (codex): ${startup_prompt:0:80}..." >&2
     # Dismiss suggestion UI, then send startup prompt
