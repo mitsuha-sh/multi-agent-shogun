@@ -8,6 +8,14 @@
             "command": "bash config/hooks/post_clear_recovery.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /tmp/cmd669_hook_probe.sh project_sessionstart"
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -36,11 +44,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash config/hooks/write_handoff.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "bash scripts/stop_hook_inbox.sh",
             "timeout": 60
           },
@@ -48,6 +51,14 @@
             "type": "command",
             "command": "bash scripts/hooks/stop_hook_conversation_save.sh",
             "timeout": 15
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /tmp/cmd669_hook_probe.sh project_stop"
           }
         ]
       }

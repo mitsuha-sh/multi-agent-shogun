@@ -75,7 +75,6 @@
 !config/hooks/
 !config/hooks/post_clear_recovery.sh
 !config/hooks/enforce_session_start.sh
-!config/hooks/write_handoff.sh
 # Private config (explicit deny — prevent git add)
 config/settings.yaml
 config/projects.yaml
@@ -91,8 +90,6 @@ config/projects.yaml
 # Shared task notes placeholder
 !queue/notes/
 !queue/notes/.gitkeep
-!queue/handoff/
-!queue/handoff/.gitkeep
 
 # Python venv
 !requirements.txt

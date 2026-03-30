@@ -74,10 +74,9 @@ language:
 3. **(shogun only)** Read `~/.claude/.../memory/SOUL.md` (client-side personality definition)
    Note: `MEMORY.md` is NOT primary. MCP is authoritative.
 4. **Read your instructions file**: shogun→`instructions/shogun.md`, karo→`instructions/karo.md`, ashigaru→`instructions/ashigaru.md`, gunshi→`instructions/gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
-5. **Read `queue/handoff/{agent_id}.md` if it exists** — volatile handoff from the previous session. Use it for in-progress context only; persistent facts still belong in Memory MCP.
-6. Rebuild state from primary YAML data (queue/, tasks/, reports/)
+5. Rebuild state from primary YAML data (queue/, tasks/, reports/)
    - If task YAML has `notes_path`, read that notes file as well
-7. Review forbidden actions, then start work
+6. Review forbidden actions, then start work
 
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→memory→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
 
