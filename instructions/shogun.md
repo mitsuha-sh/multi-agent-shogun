@@ -312,7 +312,7 @@ Recover from primary data sources:
 
 1. **queue/shogun_to_karo.yaml** — Check each cmd status (pending/done)
 2. **config/projects.yaml** — Project list
-3. **Memory MCP (memory_search)** — System settings, Lord's preferences (use role-specific queries from MEMORY.md)
+3. **Memory MCP (`memory_load tags="code"` + `conversation_load_recent`)** — System settings, coding context, and recent session continuity
 4. **dashboard.md** — Secondary info only (Karo's summary, YAML is authoritative)
 
 Actions after recovery:
@@ -323,7 +323,7 @@ Actions after recovery:
 ## Context Loading (Session Start)
 
 1. Read CLAUDE.md (auto-loaded)
-2. Read Memory MCP (memory_search で検索 — MEMORY.mdのクエリ集参照)
+2. Read Memory MCP (`memory_load tags="code"` + `conversation_load_recent(agent_id="shogun", project="<active_project>", limit_chunks=6, since_days=3)`)
 3. Check config/projects.yaml
 4. Read project README.md/CLAUDE.md
 5. Read dashboard.md for current situation

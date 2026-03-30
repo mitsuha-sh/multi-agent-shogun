@@ -135,6 +135,9 @@ NEW_CONTEXT_SENT=${NEW_CONTEXT_SENT:-0}
 # Tracks whether we sent a startup prompt (Codex) that includes full recovery.
 # When set, skip follow-up nudge for this cycle (agent already knows what to do).
 STARTUP_PROMPT_SENT=${STARTUP_PROMPT_SENT:-0}
+LAST_PENDING_REMINDER_TS=${LAST_PENDING_REMINDER_TS:-0}
+PENDING_REMINDER_COOLDOWN_SEC=${PENDING_REMINDER_COOLDOWN_SEC:-120}
+SHOGUN_CMD_QUEUE=${SHOGUN_CMD_QUEUE:-${SCRIPT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}/queue/shogun_to_karo.yaml}
 
 # ─── Phase feature flags (cmd_107 Phase 1/2/3) ───
 # ASW_PHASE:
@@ -393,6 +396,112 @@ except Exception:
 PY
 }
 
+count_pending_cmds() {
+    local queue_file="${SHOGUN_CMD_QUEUE:-}"
+    if [ -z "$queue_file" ] || [ ! -f "$queue_file" ]; then
+        echo 0
+        return 0
+    fi
+    grep -c '^  status: pending' "$queue_file" 2>/dev/null || echo 0
+}
+
+enqueue_karo_pending_reminder() {
+    local pending_count="${1:-0}"
+    (
+        if command -v flock &>/dev/null; then flock -x 200; else _ld="${LOCKFILE}.d"; _i=0; while ! mkdir "$_ld" 2>/dev/null; do sleep 0.1; _i=$((_i+1)); [ $_i -ge 300 ] && break; done; trap "rmdir '$_ld' 2>/dev/null" EXIT; fi
+        INBOX_PATH="$INBOX" PENDING_COUNT="$pending_count" "$SCRIPT_DIR/.venv/bin/python3" - << 'PY'
+import datetime
+import os
+import uuid
+import yaml
+
+inbox = os.environ.get("INBOX_PATH", "")
+pending_count = os.environ.get("PENDING_COUNT", "0")
+
+try:
+    with open(inbox, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+
+    messages = data.get("messages", []) or []
+
+    # Dedup guard: keep only one unread auto-pending reminder at a time.
+    for m in reversed(messages):
+        if (
+            m.get("from") == "inbox_watcher"
+            and m.get("type") == "cmd_new"
+            and m.get("read", False) is False
+            and "[auto-pending-guard]" in (m.get("content") or "")
+        ):
+            print("SKIP_DUPLICATE")
+            raise SystemExit(0)
+
+    now = datetime.datetime.now(datetime.timezone.utc).astimezone()
+    msg = {
+        "content": (
+            f"[auto-pending-guard] shogun_to_karo.yaml に pending cmd が {pending_count} 件ある。"
+            f" queue/shogun_to_karo.yaml を確認して処理を再開せよ。"
+        ),
+        "from": "inbox_watcher",
+        "id": f"msg_auto_pending_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}",
+        "read": False,
+        "timestamp": now.replace(microsecond=0).isoformat(),
+        "type": "cmd_new",
+    }
+    messages.append(msg)
+    data["messages"] = messages
+
+    tmp_path = f"{inbox}.tmp.{os.getpid()}"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(
+            data,
+            f,
+            default_flow_style=False,
+            allow_unicode=True,
+            sort_keys=False,
+        )
+    os.replace(tmp_path, inbox)
+    print(msg["id"])
+except Exception:
+    print("ERROR")
+PY
+    ) 200>"$LOCKFILE" 2>/dev/null
+}
+
+maybe_remind_karo_pending_cmds() {
+    local trigger="${1:-timeout}"
+    [ "$AGENT_ID" = "karo" ] || return 0
+    [ "$trigger" = "timeout" ] || return 0
+
+    local pending_count
+    pending_count=$(count_pending_cmds)
+    if [ "${pending_count:-0}" -le 0 ] 2>/dev/null; then
+        return 0
+    fi
+
+    local now
+    now=$(date +%s)
+    if [ "${LAST_PENDING_REMINDER_TS:-0}" -gt 0 ] && [ "$((now - LAST_PENDING_REMINDER_TS))" -lt "${PENDING_REMINDER_COOLDOWN_SEC:-120}" ]; then
+        echo "[$(date)] [SKIP] pending reminder cooldown active for karo (${pending_count} pending)" >&2
+        return 0
+    fi
+
+    local reminder_id
+    reminder_id=$(enqueue_karo_pending_reminder "$pending_count")
+    case "$reminder_id" in
+        SKIP_DUPLICATE)
+            echo "[$(date)] [SKIP] karo auto-pending reminder already unread" >&2
+            ;;
+        ERROR|"")
+            echo "[$(date)] [WARN] failed to enqueue karo auto-pending reminder" >&2
+            ;;
+        *)
+            LAST_PENDING_REMINDER_TS=$now
+            echo "[$(date)] [AUTO-PENDING] queued reminder for karo (${pending_count} pending, msg=$reminder_id)" >&2
+            send_wakeup 1
+            ;;
+    esac
+}
+
 # ─── Extract unread message info (lock-free read) ───
 # Returns JSON lines: {"count": N, "has_special": true/false, "specials": [...]}
 # Test anchor for bats awk pattern: get_unread_info\\(\\)
@@ -584,7 +693,7 @@ send_codex_startup_prompt() {
         startup_prompt=$(get_startup_prompt "$AGENT_ID" 2>/dev/null || true)
     fi
     if [[ -z "$startup_prompt" ]]; then
-        startup_prompt="Session Start — do ALL of this in one turn, do NOT stop early: 1) tmux display-message to identify yourself. 2) Read queue/tasks/${AGENT_ID}.yaml. 3) Read queue/inbox/${AGENT_ID}.yaml, mark read:true. 4) Read context_files. 5) Execute the assigned task to completion — edit files, run commands, write reports. Keep working until done."
+        startup_prompt="Session Start — do ALL of this in one turn, do NOT stop early: 1) tmux display-message to identify yourself. 2) Read queue/tasks/${AGENT_ID}.yaml. 3) Read queue/inbox/${AGENT_ID}.yaml, mark read:true. 4) If queue/handoff/${AGENT_ID}.md exists, read it first. 5) Read context_files. 6) Execute the assigned task to completion — edit files, run commands, write reports. Keep working until done."
     fi
     echo "[$(date)] [STARTUP] Sending startup prompt to $AGENT_ID (codex): ${startup_prompt:0:80}..." >&2
     # Dismiss suggestion UI, then send startup prompt
@@ -921,6 +1030,7 @@ process_unread() {
     fast_count=$(echo "$fast_info" | "$SCRIPT_DIR/.venv/bin/python3" -c "import sys,json; print(json.load(sys.stdin).get('count',0))" 2>/dev/null)
 
     if no_idle_full_read "$trigger" && [ "$fast_count" -eq 0 ] 2>/dev/null; then
+        maybe_remind_karo_pending_cmds "$trigger"
         # no_idle_full_read guard: unread=0 and timeout path → no full inbox read
         if [ "$FIRST_UNREAD_SEEN" -ne 0 ]; then
             echo "[$(date)] All messages read for $AGENT_ID — escalation reset (fast-path)" >&2

@@ -36,8 +36,18 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash config/hooks/write_handoff.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "bash scripts/stop_hook_inbox.sh",
             "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/stop_hook_conversation_save.sh",
+            "timeout": 15
           }
         ]
       }
