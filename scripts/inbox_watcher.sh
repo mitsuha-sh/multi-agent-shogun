@@ -473,7 +473,7 @@ maybe_remind_karo_pending_cmds() {
     [ "$trigger" = "timeout" ] || return 0
 
     local pending_count
-    pending_count=$(count_pending_cmds)
+    pending_count=$(count_pending_cmds | tr -d '[:space:]')
     if [ "${pending_count:-0}" -le 0 ] 2>/dev/null; then
         return 0
     fi
