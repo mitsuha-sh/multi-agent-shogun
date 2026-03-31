@@ -865,6 +865,46 @@ PY
     echo "$output" | grep -q "OK"
 }
 
+# --- T-KARO-003: no reminder when pending cmd count is zero ---
+
+@test "T-KARO-003: process_unread timeout does not inject auto-pending reminder when pending count is zero" {
+    run bash -c '
+        source "'"$TEST_HARNESS"'"
+        AGENT_ID="karo"
+        INBOX="$TEST_INBOX_DIR/karo.yaml"
+        LOCKFILE="${INBOX}.lock"
+        echo "messages: []" > "$INBOX"
+
+        queue_tmp="$TEST_TMPDIR/shogun_to_karo.yaml"
+        cat > "$queue_tmp" << "YAML"
+- id: cmd_test_done
+  status: done
+YAML
+        SHOGUN_CMD_QUEUE="$queue_tmp"
+        process_unread timeout
+
+        "$VENV_PYTHON" - << "PY" "$INBOX"
+import sys
+import yaml
+
+inbox_path = sys.argv[1]
+with open(inbox_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+messages = data.get("messages", []) or []
+auto = [
+    m for m in messages
+    if m.get("from") == "inbox_watcher"
+    and m.get("type") == "cmd_new"
+    and "[auto-pending-guard]" in (m.get("content") or "")
+]
+assert len(auto) == 0
+print("OK")
+PY
+    '
+    [ "$status" -eq 0 ]
+    echo "$output" | grep -q "OK"
+}
+
 # --- T-COPILOT-001: copilot /clear → Ctrl-C + restart ---
 
 @test "T-COPILOT-001: send_cli_command sends Ctrl-C + copilot restart for copilot /clear" {
