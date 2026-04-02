@@ -521,6 +521,7 @@ SHOGUN_PROMPT=$(generate_prompt "将軍" "magenta" "$SHELL_SETTING")
 tmux send-keys -t shogun:main "cd \"$(pwd)\" && export PS1='${SHOGUN_PROMPT}' && clear" Enter
 tmux select-pane -t shogun:main -P 'bg=#002b36'  # 将軍の Solarized Dark
 tmux set-option -p -t shogun:main @agent_id "shogun"
+tmux set-option -p -t shogun:main @memory_l1_save "1"
 
 log_success "  └─ 将軍の本陣、構築完了"
 echo ""
@@ -615,6 +616,7 @@ for i in "${!AGENT_IDS[@]}"; do
     p=$((PANE_BASE + i))
     tmux select-pane -t "multiagent:agents.${p}" -T "${MODEL_NAMES[$i]}"
     tmux set-option -p -t "multiagent:agents.${p}" @agent_id "${AGENT_IDS[$i]}"
+    tmux set-option -p -t "multiagent:agents.${p}" @memory_l1_save "0"
     tmux set-option -p -t "multiagent:agents.${p}" @model_name "${MODEL_NAMES[$i]}"
     tmux set-option -p -t "multiagent:agents.${p}" @current_task ""
     PROMPT_STR=$(generate_prompt "${PANE_LABELS[$i]}" "${PANE_COLORS[$i]}" "$SHELL_SETTING")

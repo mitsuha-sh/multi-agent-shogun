@@ -115,6 +115,7 @@ config/projects.yaml
 !scripts/hooks/
 !scripts/hooks/suggest-compact.sh
 !scripts/hooks/stop_hook_conversation_save.sh
+!scripts/hooks/session_start_memory_context.sh
 
 
 # SayTask (sample template only, not actual data)

@@ -1626,11 +1626,11 @@ MCPツールは「遅延ロード」方式で、最初にロードが必要で�
 
 ```
 # 間違い - ツールがロードされていない
-mcp__shogun-memory-mcp__memory_search()  ← エラー！
+mcp__atri-memory-mcp__memory_search()  ← エラー！
 
 # 正しい - 先にロード
-ToolSearch("select:mcp__shogun-memory-mcp__memory_search")
-mcp__shogun-memory-mcp__memory_search()  ← 動作！
+ToolSearch("select:mcp__atri-memory-mcp__memory_search")
+mcp__atri-memory-mcp__memory_search()  ← 動作！
 ```
 
 </details>

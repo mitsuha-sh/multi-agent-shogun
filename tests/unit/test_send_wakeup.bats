@@ -38,6 +38,7 @@
 #   T-CODEX-012: auto-recovery task_assignedは重複投入しない
 #   T-KARO-001: karo timeout時にpending cmdを検知してauto-pending通知を注入
 #   T-KARO-002: auto-pending通知は未読がある間は重複注入しない
+#   T-KARO-004: auto-pending-guard cooldown blocks re-send even when previous is read
 #   T-SHOGUN-001: session_has_client — returns 0 when client attached
 #   T-SHOGUN-002: session_has_client — returns 1 when no client
 #   T-SHOGUN-003: send_wakeup — shogun + active + attached → send-keys (post PR#75)
@@ -865,7 +866,7 @@ PY
     echo "$output" | grep -q "OK"
 }
 
-# --- T-KARO-003: no reminder when pending cmd count is zero ---
+# --- T-KARO-003: zero pending does not enqueue bogus auto-reminder ---
 
 @test "T-KARO-003: process_unread timeout does not inject auto-pending reminder when pending count is zero" {
     run bash -c '
@@ -879,6 +880,8 @@ PY
         cat > "$queue_tmp" << "YAML"
 - id: cmd_test_done
   status: done
+- id: cmd_test_in_progress
+  status: in_progress
 YAML
         SHOGUN_CMD_QUEUE="$queue_tmp"
         process_unread timeout
@@ -905,6 +908,61 @@ PY
     echo "$output" | grep -q "OK"
 }
 
+# --- T-KARO-004: cooldown blocks re-send even after read ---
+
+@test "T-KARO-004: auto-pending-guard cooldown blocks re-send even when previous is read" {
+    run bash -c '
+        source "'"$TEST_HARNESS"'"
+        AGENT_ID="karo"
+        INBOX="$TEST_INBOX_DIR/karo.yaml"
+        LOCKFILE="${INBOX}.lock"
+        echo "messages: []" > "$INBOX"
+
+        queue_tmp="$TEST_TMPDIR/shogun_to_karo.yaml"
+        cat > "$queue_tmp" << "YAML"
+- id: cmd_test_cooldown
+  status: pending
+YAML
+        SHOGUN_CMD_QUEUE="$queue_tmp"
+
+        # First call: injects auto-pending-guard
+        process_unread timeout
+
+        # Simulate karo reading it (mark read: true)
+        "$VENV_PYTHON" - << "PY" "$INBOX"
+import yaml, sys
+inbox_path = sys.argv[1]
+with open(inbox_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+for m in data.get("messages", []):
+    if "[auto-pending-guard]" in (m.get("content") or ""):
+        m["read"] = True
+with open(inbox_path, "w", encoding="utf-8") as f:
+    yaml.safe_dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+PY
+
+        # Second call: should be blocked by cooldown (within 30 min)
+        process_unread timeout
+
+        "$VENV_PYTHON" - << "PY" "$INBOX"
+import sys, yaml
+inbox_path = sys.argv[1]
+with open(inbox_path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f) or {}
+messages = data.get("messages", []) or []
+auto = [
+    m for m in messages
+    if m.get("from") == "inbox_watcher"
+    and "[auto-pending-guard]" in (m.get("content") or "")
+]
+# Should still be exactly 1 (cooldown blocked the second)
+assert len(auto) == 1, f"Expected 1 auto-pending msg, got {len(auto)}"
+print("OK")
+PY
+    '
+    [ "$status" -eq 0 ]
+    echo "$output" | grep -q "OK"
+}
 # --- T-COPILOT-001: copilot /clear → Ctrl-C + restart ---
 
 @test "T-COPILOT-001: send_cli_command sends Ctrl-C + copilot restart for copilot /clear" {

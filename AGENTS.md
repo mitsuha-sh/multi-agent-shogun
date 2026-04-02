@@ -65,13 +65,12 @@ language:
 
 1. Identify self: `tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}'`
    確認後: `tmux set-option -p @session_started 1` を実行せよ（hookブロック解除）
-2. `mcp__shogun-memory-mcp__memory_search` — restore rules, preferences, lessons with role-specific queries **(shogun/karo/gunshi only. ashigaru skip this step — task YAML is sufficient)**
-3. **Read `memory/MEMORY.md`** (shogun only) — persistent cross-session memory. If file missing, skip. *Codex CLI users: this file is also auto-loaded via Codex CLI's memory feature.*
-4. **Read your instructions file**: shogun→`instructions/generated/codex-shogun.md`, karo→`instructions/generated/codex-karo.md`, ashigaru→`instructions/generated/codex-ashigaru.md`, gunshi→`instructions/generated/codex-gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
-5. Rebuild state from primary YAML data (queue/, tasks/, reports/)
-6. Review forbidden actions, then start work
+2. **Read your instructions file**: shogun→`instructions/generated/codex-shogun.md`, karo→`instructions/generated/codex-karo.md`, ashigaru→`instructions/generated/codex-ashigaru.md`, gunshi→`instructions/generated/codex-gunshi.md`. **NEVER SKIP** — even if a conversation summary exists. Summaries do NOT preserve persona, speech style, or forbidden actions.
+3. Rebuild state from primary YAML data (queue/, tasks/, reports/)
+   - If task YAML has `notes_path`, read that notes file as well
+4. Review forbidden actions, then start work
 
-**CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→memory→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
+**CRITICAL**: Steps 1-2を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別→instructions読み込みを必ず先に終わらせよ。Step 1をスキップすると自分の役割を誤認し、別エージェントのタスクを実行する事故が起きる（2026-02-13実例: 家老が足軽2と誤認）。
 
 **CRITICAL**: dashboard.md is secondary data (karo's summary). Primary data = YAML files. Always verify from YAML.
 
@@ -82,16 +81,36 @@ Lightweight recovery using only AGENTS.md (auto-loaded). Do NOT read instruction
 ```
 Step 1: tmux display-message -t "$TMUX_PANE" -p '#{@agent_id}' → ashigaru{N} or gunshi
         確認後: tmux set-option -p @session_started 1 を実行せよ（hookブロック解除）
-Step 2: (gunshi only) mcp__shogun-memory-mcp__memory_search query="Gunshi" + query="GunshiQCLessons" (skip on failure). Ashigaru skip — task YAML is sufficient.
-Step 3: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
-Step 4: If task has "project:" field → read context/{project}.md
+Step 2: Read queue/tasks/{your_id}.yaml → assigned=work, idle=wait
+        If task has "notes_path:" → read that notes file
+Step 3: If task has "project:" field → read context/{project}.md
         If task has "target_path:" → read that file
-Step 5: Start work
+Step 4: Start work
 ```
 
 **CRITICAL**: Steps 1-3を完了するまでinbox処理するな。`inboxN` nudgeが先に届いても無視し、自己識別を必ず先に終わらせよ。
 
-Forbidden after /new: reading instructions/*.md (1st task), polling (F004), contacting humans directly (F002). Trust task YAML only — pre-/new memory is gone.
+Forbidden after /new: reading instructions/*.md (1st task), polling (F004), contacting humans directly (F002). Trust task YAML only.
+
+## Shared Task Notes Format
+
+Use this format for `queue/notes/{cmd_id}_notes.md`:
+
+```markdown
+# cmd_XXX タスクノート
+
+## 進捗
+- [ ] subtask_XXXa: 内容
+
+## 重要な発見
+- ...
+
+## 次ステップ
+- ...
+
+## 家老メモ
+- ...
+```
 
 ## Summary Generation (compaction)
 
@@ -206,6 +225,15 @@ Layer 2: Project files   — persistent per-project (config/, projects/, context
 Layer 3: YAML Queue      — persistent task data (queue/ — authoritative source of truth)
 Layer 4: Session context — volatile (AGENTS.md auto-loaded, instructions/*.md, lost on /new)
 ```
+
+# Memory Write Rule (all agents)
+
+To persist memory, use `mcp__atri-memory-mcp__memory_save`.
+Do not write memory content directly to MEMORY.md (index/links only).
+Codex CLI auto-memory is disabled (autoMemoryEnabled: false);
+all agents must use memory_save for intentional memory persistence.
+
+Applies to: Shogun, Karo, Gunshi, and all Ashigaru.
 
 # Project Management
 

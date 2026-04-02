@@ -1680,8 +1680,8 @@ npm uninstall -g @anthropic-ai/claude-code
 
 MCP tools are lazy-loaded. Search first, then use:
 ```
-ToolSearch("select:mcp__shogun-memory-mcp__memory_search")
-mcp__shogun-memory-mcp__memory_search()
+ToolSearch("select:mcp__atri-memory-mcp__memory_search")
+mcp__atri-memory-mcp__memory_search()
 ```
 
 </details>

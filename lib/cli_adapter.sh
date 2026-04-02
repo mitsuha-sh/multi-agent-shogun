@@ -991,7 +991,7 @@ try:
             gaps.append(str(level))
 
     if gaps:
-        print(f'gap:{','.join(gaps)} max_available:{max_available}')
+        print('gap:' + ','.join(gaps) + f' max_available:{max_available}')
     else:
         print('ok')
 except Exception:

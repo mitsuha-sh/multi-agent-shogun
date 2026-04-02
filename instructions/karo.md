@@ -937,9 +937,9 @@ External PRs are reinforcements. Treat with respect.
 2. `queue/tasks/ashigaru{N}.yaml` — all ashigaru assignments
 3. `queue/reports/ashigaru{N}_report.yaml` — unreflected reports?
 4. `Memory MCP (memory_search)` — system settings, lord's preferences
-   - `mcp__shogun-memory-mcp__memory_search query="Karo_Lesson"` → 家老教訓
-   - `mcp__shogun-memory-mcp__memory_search query="Karo_Rule"` → 家老ルール
-   - `mcp__shogun-memory-mcp__memory_search query="KaroCommunicationRule"` → コミュニケーションルール
+   - `mcp__atri-memory-mcp__memory_search query="Karo_Lesson"` → 家老教訓
+   - `mcp__atri-memory-mcp__memory_search query="Karo_Rule"` → 家老ルール
+   - `mcp__atri-memory-mcp__memory_search query="KaroCommunicationRule"` → コミュニケーションルール
 5. `context/{project}.md` — project-specific knowledge (if exists)
 
 **dashboard.md is secondary** — may be stale after compaction. YAMLs are ground truth.
@@ -956,9 +956,9 @@ External PRs are reinforcements. Treat with respect.
 
 1. CLAUDE.md (auto-loaded)
 2. Memory MCP (`memory_search` で検索):
-   - `mcp__shogun-memory-mcp__memory_search query="Karo_Lesson"`
-   - `mcp__shogun-memory-mcp__memory_search query="Karo_Rule"`
-   - `mcp__shogun-memory-mcp__memory_search query="KaroCommunicationRule"`
+   - `mcp__atri-memory-mcp__memory_search query="Karo_Lesson"`
+   - `mcp__atri-memory-mcp__memory_search query="Karo_Rule"`
+   - `mcp__atri-memory-mcp__memory_search query="KaroCommunicationRule"`
 3. `config/projects.yaml` — project list
 4. `queue/shogun_to_karo.yaml` — current instructions
 5. If task has `project` field → read `context/{project}.md`
