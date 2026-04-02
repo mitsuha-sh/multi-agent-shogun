@@ -402,7 +402,11 @@ count_pending_cmds() {
         echo 0
         return 0
     fi
-    grep -c '^  status: pending' "$queue_file" 2>/dev/null || echo 0
+    awk '
+        BEGIN { count = 0 }
+        /^  status: pending$/ { count++ }
+        END { print count + 0 }
+    ' "$queue_file" 2>/dev/null || echo 0
 }
 
 enqueue_karo_pending_reminder() {
@@ -424,18 +428,27 @@ try:
 
     messages = data.get("messages", []) or []
 
-    # Dedup guard: keep only one unread auto-pending reminder at a time.
+    # Dedup guard: cooldown-based. Skip if any auto-pending-guard
+    # (read or unread) was sent within the last 30 minutes.
+    COOLDOWN_MINUTES = 30
+    now = datetime.datetime.now(datetime.timezone.utc).astimezone()
     for m in reversed(messages):
         if (
             m.get("from") == "inbox_watcher"
-            and m.get("type") == "cmd_new"
-            and m.get("read", False) is False
             and "[auto-pending-guard]" in (m.get("content") or "")
         ):
-            print("SKIP_DUPLICATE")
-            raise SystemExit(0)
+            ts_str = m.get("timestamp", "")
+            try:
+                ts = datetime.datetime.fromisoformat(ts_str)
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=datetime.timezone.utc)
+                if (now - ts).total_seconds() < COOLDOWN_MINUTES * 60:
+                    print("SKIP_COOLDOWN")
+                    raise SystemExit(0)
+            except (ValueError, TypeError):
+                pass
+            break  # Only check the most recent one
 
-    now = datetime.datetime.now(datetime.timezone.utc).astimezone()
     msg = {
         "content": (
             f"[auto-pending-guard] shogun_to_karo.yaml に pending cmd が {pending_count} 件ある。"
@@ -474,7 +487,9 @@ maybe_remind_karo_pending_cmds() {
 
     local pending_count
     pending_count=$(count_pending_cmds)
-    if [ "${pending_count:-0}" -le 0 ] 2>/dev/null; then
+    pending_count="${pending_count//[^0-9]/}"
+    pending_count="${pending_count:-0}"
+    if [ "$pending_count" -le 0 ] 2>/dev/null; then
         return 0
     fi
 

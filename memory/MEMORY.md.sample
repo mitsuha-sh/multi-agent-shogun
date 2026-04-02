@@ -5,11 +5,11 @@ This file persists across sessions and is read by the Shogun agent at startup.
 
 ---
 
-## How to Use: MEMORY.md vs shogun-memory-mcp
+## How to Use: MEMORY.md vs atri-memory-mcp
 
 Two memory systems exist. Use them for different purposes:
 
-| | MEMORY.md | shogun-memory-mcp (SQLite+FTS5) |
+| | MEMORY.md | atri-memory-mcp (SQLite+FTS5) |
 |---|---|---|
 | **Loaded** | Auto at session start | Only when you call `memory_search` |
 | **Cost** | Free (already in context) | Tokens per call |
@@ -18,7 +18,7 @@ Two memory systems exist. Use them for different purposes:
 
 **Rule of thumb:**
 - "I need this every session" → **MEMORY.md**
-- "I need to query: what caused X / what's related to Y" → **shogun-memory-mcp**
+- "I need to query: what caused X / what's related to Y" → **atri-memory-mcp**
 
 ### What to put in MEMORY.md
 - Your profile (GitHub, X, etc.)
@@ -27,15 +27,15 @@ Two memory systems exist. Use them for different purposes:
 - Active project references and URLs
 - TODO backlog
 
-### What to put in shogun-memory-mcp
+### What to put in atri-memory-mcp
 - Incidents and their root causes
 - Architecture decisions with reasoning
 - Lord's preferences by category
 - Cross-project lessons learned
 
-### Example shogun-memory-mcp entry
+### Example atri-memory-mcp entry
 ```
-mcp__shogun-memory-mcp__memory_save(
+mcp__atri-memory-mcp__memory_save(
     content="Gunshi review skipped -> venv preflight missing -> deploy broke",
     memory_type="procedural",
     category="lesson",

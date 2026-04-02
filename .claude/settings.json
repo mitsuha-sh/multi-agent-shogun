@@ -13,7 +13,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash /tmp/cmd669_hook_probe.sh project_sessionstart"
+            "command": "bash scripts/hooks/session_start_memory_context.sh"
           }
         ]
       }
@@ -51,14 +51,6 @@
             "type": "command",
             "command": "bash scripts/hooks/stop_hook_conversation_save.sh",
             "timeout": 15
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /tmp/cmd669_hook_probe.sh project_stop"
           }
         ]
       }
