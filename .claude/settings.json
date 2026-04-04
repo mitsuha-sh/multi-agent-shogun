@@ -7,6 +7,11 @@
             "type": "command",
             "command": "bash config/hooks/enforce_session_start.sh",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/suggest-compact.sh",
+            "timeout": 10
           }
         ]
       }
@@ -16,17 +21,28 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash config/hooks/write_handoff.sh",
-            "timeout": 10
-          },
-          {
-            "type": "command",
             "command": "bash scripts/stop_hook_inbox.sh",
             "timeout": 60
           },
           {
             "type": "command",
             "command": "bash scripts/hooks/stop_hook_conversation_save.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash config/hooks/post_clear_recovery.sh",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/session_start_memory_context.sh",
             "timeout": 15
           }
         ]
