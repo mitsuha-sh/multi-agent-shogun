@@ -402,9 +402,14 @@ count_pending_cmds() {
         echo 0
         return 0
     fi
+    # Count top-level "status: pending" fields, excluding those inside
+    # multiline command/description blocks (which use 4+ space indent).
     awk '
         BEGIN { count = 0 }
-        /^  status: pending$/ { count++ }
+        /^- id: cmd_/ { in_block = 1; in_multiline = 0 }
+        /^  command: \|/ || /^  description: \|/ { in_multiline = 1 }
+        /^  [a-z]/ && !/^  command:/ && !/^  description:/ { in_multiline = 0 }
+        in_block && !in_multiline && /^  status: pending$/ { count++; in_block = 0 }
         END { print count + 0 }
     ' "$queue_file" 2>/dev/null || echo 0
 }
