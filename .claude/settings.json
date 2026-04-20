@@ -23,11 +23,6 @@
             "type": "command",
             "command": "bash scripts/stop_hook_inbox.sh",
             "timeout": 60
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/stop_hook_conversation_save.sh",
-            "timeout": 15
           }
         ]
       }
@@ -37,12 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash config/hooks/post_clear_recovery.sh",
-            "timeout": 20
-          },
-          {
-            "type": "command",
-            "command": "bash scripts/hooks/session_start_memory_context.sh",
+            "command": "bash scripts/hooks/session_start_memory.sh",
             "timeout": 15
           }
         ]
